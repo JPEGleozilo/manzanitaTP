@@ -1,4 +1,6 @@
+import inicio from "./scenes/inicio.js";
 import arena from "./scenes/arena.js";
+import muerte from "./scenes/muerte.js";
 
 // Create a new Phaser config object
 const config = {
@@ -22,13 +24,13 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 0 },
-      debug: false,
+      debug: true,
     },
   },
   // List of scenes to load
   // Only the first scene will be shown
   // Remember to import the scene before adding it to the list
-  scene: [arena],
+  scene: [inicio, arena, muerte],
 };
 
 // Create a new Phaser game instance
