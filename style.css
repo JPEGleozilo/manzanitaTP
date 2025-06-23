@@ -1,0 +1,12 @@
+@font-face {
+    font-family: "uphe";
+    src: url("public/assets/fonts/upheavtt.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: "retro";
+    src: url("public/assets/fonts/Retro Gaming.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}

@@ -1,17 +1,32 @@
-function isBlocked(x, y, bordes, cellSize) {
+function isBlocked(x, y, bordes, cellSizeX, cellSizeY) {
+  const minX = 17;
+  const maxX = 304;
+  const minY = 19;
+  const maxY = 160;
+
+  if (
+    x < minX ||
+    x > maxX ||
+    y < minY ||
+    y > maxY
+  ) {
+    return true;
+    console.log("bloqueado")
+  }
+
   return bordes.getChildren().some(borde => {
     return Phaser.Geom.Intersects.RectangleToRectangle(
-      new Phaser.Geom.Rectangle(x, y, cellSize, cellSize),
+      new Phaser.Geom.Rectangle(x, y, cellSizeX, cellSizeY),
       borde.getBounds()
     );
   });
 }
 
-function nextPosition(x, y, dir, cellSize) {
-  if (dir === 'up') return { x, y: y - cellSize };
-  if (dir === 'down') return { x, y: y + cellSize };
-  if (dir === 'left') return { x: x - cellSize, y };
-  if (dir === 'right') return { x: x + cellSize, y };
+function nextPosition(x, y, dir, cellSizeX, cellSizeY) {
+  if (dir === 'up') return { x, y: y - cellSizeY };
+  if (dir === 'down') return { x, y: y + cellSizeY };
+  if (dir === 'left') return { x: x - cellSizeX, y };
+  if (dir === 'right') return { x: x + cellSizeX, y };
 }
 
 function turnLeft(dir) {
@@ -22,7 +37,7 @@ function turnRight(dir) {
   return { up: 'right', right: 'down', down: 'left', left: 'up' }[dir];
 }
 
-function snakePathfinding(start, goal, dir, bordes, cellSize) {
+function snakePathfinding(start, goal, dir, bordes, cellSizeX, cellSizeY) {
   const queue = [];
   const visited = new Set();
   queue.push({ x: start.x, y: start.y, dir, path: [] });
@@ -34,14 +49,14 @@ function snakePathfinding(start, goal, dir, bordes, cellSize) {
     visited.add(key);
 
     if (
-      Math.abs(node.x - goal.x) < cellSize &&
-      Math.abs(node.y - goal.y) < cellSize
+      Math.abs(node.x - goal.x) < cellSizeX &&
+      Math.abs(node.y - goal.y) < cellSizeY
     ) {
       return node.path;
     }
 
-    const { x: nx, y: ny } = nextPosition(node.x, node.y, node.dir, cellSize);
-    if (!isBlocked(nx, ny, bordes, cellSize)) {
+    const { x: nx, y: ny } = nextPosition(node.x, node.y, node.dir, cellSizeX, cellSizeY);
+    if (!isBlocked(nx, ny, bordes, cellSizeX, cellSizeY)) {
       queue.push({ x: nx, y: ny, dir: node.dir, path: [...node.path, 'forward'] });
     }
 
@@ -57,16 +72,20 @@ function snakePathfinding(start, goal, dir, bordes, cellSize) {
 export default class arena extends Phaser.Scene {
   constructor() {
     super("arena");
+    this.lastPlayerCell = { x: null, y: null };
+    this.lastPathTime = 0;
+    this.lastEnemyCell = { x: null, y: null }; // NUEVO: para controlar avance por celda
   }
 
-  init() {}
 
   preload() {
-    this.load.image("fondo", "public/assets/Cielo.webp");
-    this.load.image("player", "public/assets/pacman.png");
+    this.load.image("fondo", "public/assets/fondo.png");
+    this.load.image("player", "public/assets/manzanita.png");
     this.load.image("moneda", "public/assets/diamond.png");
     this.load.image("borde", "public/assets/borde.png");
     this.load.image("enemigo", "public/assets/Ninja.png");
+    this.load.bitmapFont("retro", "public/assets/fonts/Retro Gaming/RetroGaming.png", "public/assets/fonts/Retro Gaming/RetroGaming.xml");
+    this.load.bitmapFont("uphe" , "public/assets/fonts/Upheaval/Upheaval.png", "public/assets/fonts/Upheaval/Upheaval.xml")
   }
 
   create() {
@@ -76,171 +95,343 @@ export default class arena extends Phaser.Scene {
 
     this.enemigo = this.physics.add.image(140, 90, "enemigo").setDisplaySize(16, 16);
     this.enemigo.setCollideWorldBounds(true);
-
+    this.enemigo.setBounce(0.2, 0.2)
+    
     this.enemyDir = 'right';
     this.enemyPath = [];
     this.enemyPathStep = 0;
+
+    this.enemigoBody = []
+    this.bodyPos = []
+    this.enemigoDis = 0;
+    this.lastHeadPos = { x: this.enemigo.x, y: this.enemigo.y };  
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
     this.input.manager.canvas.style.cursor = "none";
     
     this.bordes = this.physics.add.staticGroup();
-    this.bordes.create(160, 19, "borde").setOrigin(0.5, 0.5).setDisplaySize(280, 2).refreshBody();
-    this.bordes.create(160, 161, "borde").setOrigin(0.5, 0.5).setDisplaySize(280, 2).refreshBody();
-    this.bordes.create(19, 90, "borde").setOrigin(0.5, 0.5).setDisplaySize(2, 140).refreshBody(); 
-    this.bordes.create(301, 90, "borde").setOrigin(0.5, 0.5).setDisplaySize(2, 140).refreshBody();
+    this.bordes.create(16, 16, "borde").setOrigin(0, 0).setDisplaySize(288, 2).refreshBody();
+    this.bordes.create(16, 162, "borde").setOrigin(0, 0).setDisplaySize(288, 2).refreshBody();
+    this.bordes.create(14, 18, "borde").setOrigin(0, 0).setDisplaySize(2, 144).refreshBody(); 
+    this.bordes.create(304, 18, "borde").setOrigin(0, 0).setDisplaySize(2, 144).refreshBody();
     
+    this.colisionEnemigo = false
+
     this.physics.add.collider(this.player, this.bordes);
-    this.physics.add.collider(this.enemigo, this.bordes);
+    this.physics.add.collider(this.enemigo, this.bordes, () => {
+      this.colisionEnemigo = true;
+    });
     this.physics.add.collider(this.enemigo, this.player, () => {
       this.muerte = true;
-    })
+    });
 
-    this.speedEnemigo = 0
+    this.speedEnemigo = 0;
     this.start = false;
 
     this.monedas = 0;
     this.score = 0;
-    this.scoretext = this.add.text(16, 2, `Score: ${this.score}`);
+    this.scoretext = this.add.bitmapText(21, 8, "retro", `score: ${this.score}`
+    ).setOrigin(0, 0.5);
 
     this.tiempo = 0;
-    this.tiempotext = this.add.text(280, 2, `${this.tiempo}`);
+    this.tiempotext = this.add.bitmapText(298, 8, "retro", `${this.tiempo}`).setOrigin(1, 0.5);
 
-    this.muerte = false
+    this.muerte = false;
+
+    this.countdown = 3
+    this.countdownText = this.add.bitmapText(160, 90, "uphe", `${this.countdown}`)
+    .setOrigin(0.5, 0.5);
+
+    this.countdownEvent = this.time.addEvent ({
+      delay: 1000,
+      callback: () => {
+        this.countdown --
+        this.countdownText.setText(`${this.countdown}`)
+
+        if (this.countdown <= 0) {
+          this.countdownEvent.remove()
+          this.time.addEvent({
+            delay: 500,
+            callback: () => {
+            this.countdownText.setText (" ")
+            }
+          });
+        };
+      },
+      loop: true
+    });
 
     this.time.addEvent({
       delay: 2000,
       callback: () => {
-        if (this.monedas < 1) {
-          const x = Phaser.Math.Between(25, 275);
-          const y = Phaser.Math.Between(25, 155);
+        if (!this.coin) {
+          const x = Phaser.Math.Between(20, 288);
+          const y = Phaser.Math.Between(20, 154);
           this.coin = this.physics.add
             .image(x, y, "moneda")
             .setScale(0.075, 0.075);
           this.coin.setCollideWorldBounds(true);
-          this.monedas += 1;
 
           this.physics.add.overlap(this.player, this.coin, () => {
-            this.coin.destroy();
-            this.score += 100;
-            this.monedas -= 1;
-            this.scoretext.setText(`Score: ${this.score}`);
+            if (this.coin) {
+              this.coin.destroy();
+              this.coin = null;
+              this.score += 50;
+              this.scoretext.setText(`score: ${this.score}`);
+
+              const segment = this.add.image(this.enemigo.x, this.enemigo.y, "enemigo")
+                .setDisplaySize(16, 16)
+              this.enemigoBody.push(segment);
+            }
           });
         }
       },
       loop: true,
     });
-    this.time.addEvent({
-      delay: 1000,
-      callback: () => {
-        this.tiempo += 1;
-        this.tiempotext.setText(`${this.tiempo}`);
-      },
-      loop: true,
-    });
+
     this.time.addEvent({
       delay: 3000,
       callback: () => {
-        this.start = true
+        this.start = true;
+        this.enemigo.setVelocityX(80)
+            
+      this.time.addEvent({
+        delay: 1000,
+        callback: () => {
+          this.tiempo += 1;
+          this.tiempotext.setText(`${this.tiempo}`);
+        },
+        loop: true,
+      });
       }
-    })
+    });
   }
 
-  update() {
-  if (this.start === true) {
-        this.speedEnemigo = 80
-           if (
-            (!this.enemyPath || this.enemyPathStep >= this.enemyPath.length) &&
-            this.enemyPath !== null
-          ) {
-        // Tamaño de celda dinámico (puedes ajustar si quieres)
-        let cellSize = 16;
-        if (
-          this.player.body.blocked.up ||
-          this.player.body.blocked.down ||
-          this.player.body.blocked.left ||
-          this.player.body.blocked.right
-        ) {
-          cellSize = 2;
-        }
-        const start = {
-          x: Math.round(this.enemigo.x / cellSize) * cellSize,
-          y: Math.round(this.enemigo.y / cellSize) * cellSize
-        };
-        const goal = {
-          x: Math.round(this.player.x / cellSize) * cellSize,
-          y: Math.round(this.player.y / cellSize) * cellSize
-        };
-        let path = snakePathfinding(start, goal, this.enemyDir, this.bordes, cellSize);
-    // 2. Si no encuentra, intenta con cellSize 2
-    if (!path && cellSize !== 2) {
-      const start2 = {
-        x: Math.round(this.enemigo.x / 2) * 2,
-        y: Math.round(this.enemigo.y / 2) * 2
-      };
-      const goal2 = {
-        x: Math.round(this.player.x / 2) * 2,
-        y: Math.round(this.player.y / 2) * 2
-      };
-      path = snakePathfinding(start2, goal2, this.enemyDir, this.bordes, 2);
-      if (path) cellSize = 2; // Para que el movimiento siga usando 2
-      }
-      this.enemyPath = path;
-      this.enemyPathStep = 0;
+ update(time) {
 
-      }
 
-      // --- MOVIMIENTO DEL ENEMIGO ---
-      if (this.enemyPath && this.enemyPathStep < this.enemyPath.length) {
-        const action = this.enemyPath[this.enemyPathStep];
-        let vx = 0, vy = 0;
-
-        if (action === 'forward') {
-          if (this.enemyDir === 'up') vy = -1;
-          if (this.enemyDir === 'down') vy = 1;
-          if (this.enemyDir === 'left') vx = -1;
-          if (this.enemyDir === 'right') vx = 1;
-        } else if (action === 'left') {
-          this.enemyDir = turnLeft(this.enemyDir);
-        } else if (action === 'right') {
-          this.enemyDir = turnRight(this.enemyDir);
-        }
-
-        this.enemigo.setVelocity(vx * this.speedEnemigo, vy * this.speedEnemigo);
-
-        if (action === 'forward') {
-          this.enemyPathStep++;
-        } else {
-          this.enemigo.setVelocity(0, 0);
-          this.enemyPathStep++;
-        }
-      } else {
-        this.enemigo.setVelocity(0, 0);
-      }
-    }
+    // --- MOVIMIENTO DEL JUGADOR ---
 
     const speed = 160;
     let vx = 0;
     let vy = 0;
 
-    if (this.cursors.left.isDown) vx -= 1;
-    if (this.cursors.right.isDown) vx += 1;
-    if (this.cursors.up.isDown) vy -= 1;
-    if (this.cursors.down.isDown) vy += 1;
+if (this.cursors.left.isDown && !this.player.body.blocked.left) vx -= 1;
+if (this.cursors.right.isDown && !this.player.body.blocked.right) vx += 1;
+if (this.cursors.up.isDown && !this.player.body.blocked.up) vy -= 1;
+if (this.cursors.down.isDown && !this.player.body.blocked.down) vy += 1;
 
     if (vx !== 0 && vy !== 0) {
-      vx *= Math.SQRT1_2; // 1/√2
+      vx *= Math.SQRT1_2;
       vy *= Math.SQRT1_2;
     }
 
     this.player.setVelocityX(vx * speed);
     this.player.setVelocityY(vy * speed);
 
-    if (this.muerte === true) {
-      this.scene.start("muerte");
-      this.scene.stop("arena");
+
+  const SEGMENT_SPACING = 16;
+
+  const dx = this.enemigo.x - this.lastHeadPos.x;
+  const dy = this.enemigo.y - this.lastHeadPos.y;
+  this.bodyDistance += Math.sqrt(dx * dx + dy * dy);
+      
+if (this.bodyDistance >= SEGMENT_SPACING || this.bodyPos.length === 0) {
+  this.bodyPos.unshift({ x: this.enemigo.x, y: this.enemigo.y });
+  this.lastHeadPos = { x: this.enemigo.x, y: this.enemigo.y };
+  this.bodyDistance = 0;
+}
+
+// Limita el historial al largo del cuerpo + 1
+if (this.bodyPos.length > this.enemigoBody.length + 1) {
+  this.bodyPos.pop();
+}
+
+// --- MOVER LOS SEGMENTOS ---
+for (let i = 0; i < this.enemigoBody.length; i++) {
+  const pos = this.bodyPos[i + 1];
+  if (pos) {
+    this.enemigoBody[i].x = pos.x;
+    this.enemigoBody[i].y = pos.y;
+  }
+}
+
+while (this.bodyPos.length > this.enemigoBody.length + 1) {
+  this.bodyPos.pop();
+}
+
+if (
+  this.start === true &&
+  (!this.enemyPath || this.enemyPathStep >= this.enemyPath.length) &&
+  (
+    this.enemigo.body.blocked.left || this.enemigo.body.blocked.right ||
+    this.enemigo.body.blocked.up || this.enemigo.body.blocked.down ||
+    (this.enemigo.body.velocity.x === 0 && this.enemigo.body.velocity.y === 0)
+  )
+) {
+  // Elige aleatoriamente izquierda o derecha
+  const giro = Math.random() < 0.5 ? 'left' : 'right';
+  this.enemyDir = giro === 'left' ? turnLeft(this.enemyDir) : turnRight(this.enemyDir);
+
+  // Fuerza recálculo del path en el próximo frame
+this.enemyPathStep = this.enemyPath ? this.enemyPath.length : 0;
+}
+
+  // --- ENEMIGO PATHFINDING OPTIMIZADO ---
+    if (this.start === true) {
+  this.speedEnemigo = 80;
+
+  const cellSizeX = 16;
+  const cellSizeY = 9;
+  const enemySpeed = this.speedEnemigo;
+
+  const playerCell = {
+    x: Math.floor(this.player.x / cellSizeX) * cellSizeX,
+    y: Math.floor(this.player.y / cellSizeY) * cellSizeY
+  };
+  const enemyCell = {
+  x: Math.floor(this.enemigo.x / cellSizeX),
+  y: Math.floor(this.enemigo.y / cellSizeY)
+};
+
+let needPath = false;
+if (!this.enemyPath || this.enemyPathStep >= this.enemyPath.length) {
+  needPath = true;
+}
+if (playerCell.x !== this.lastPlayerCell.x || playerCell.y !== this.lastPlayerCell.y) {
+  needPath = true;
+}
+
+if (needPath) {
+
+  const cellSizeX = 16;
+  const cellSizeY = 9;
+  
+const start = {
+  x: Math.floor(this.enemigo.x / cellSizeX) * cellSizeX,
+  y: Math.floor(this.enemigo.y / cellSizeY) * cellSizeY
+};
+  
+const minX = 17;
+const maxX = 304 - cellSizeX; // 288 si cellSizeX=16
+const minY = 19;
+const maxY = 160 - cellSizeY; // 151 si cellSizeY=9
+
+const clampToGrid = (val, min, max, size) => {
+  let clamped = Math.max(min, Math.min(max, val));
+  clamped = min + Math.floor((clamped - min) / size) * size;
+  return clamped;
+};
+
+const goal = {
+  x: clampToGrid(this.player.x, minX, maxX, cellSizeX),
+  y: clampToGrid(this.player.y, minY, maxY, cellSizeY)
+};
+
+  const newPath = snakePathfinding(start, goal, this.enemyDir, this.bordes, cellSizeX, cellSizeY);
+  if (newPath) {
+    this.enemyPath = newPath;
+    this.enemyPathStep = 0;
+    this.lastPlayerCell = { ...playerCell };
+    this.enemyMoving = false;
+    this.enemyTargetCell = null;
+      console.log("Nuevo path:", newPath);
+  } else {
+    this.enemyPath = null;
+    this.enemyPathStep = 0;
+    this.lastPlayerCell = { ...playerCell };
+    this.enemyMoving = false;
+    this.enemyTargetCell = null;
+      console.log("No hay path posible");
+  }
+}
+
+if (this.start === true && this.enemyPath && this.enemyPathStep < this.enemyPath.length) {
+  let processAll = this.enemigo.body.blocked.left || this.enemigo.body.blocked.right ||
+                   this.enemigo.body.blocked.up || this.enemigo.body.blocked.down;
+
+  if (!this.enemyMoving) {
+    const enemyCell = {
+      x: Math.floor(this.enemigo.x / cellSizeX),
+      y: Math.floor(this.enemigo.y / cellSizeY)
+    };
+
+    let keepProcessing = true;
+    while (keepProcessing) {
+      while (
+        this.enemyPathStep < this.enemyPath.length &&
+        (this.enemyPath[this.enemyPathStep] === 'left' || this.enemyPath[this.enemyPathStep] === 'right')
+      ) {
+        let action = this.enemyPath[this.enemyPathStep];
+        if (action === 'left') this.enemyDir = turnLeft(this.enemyDir);
+        else if (action === 'right') this.enemyDir = turnRight(this.enemyDir);
+        this.enemyPathStep++;
+      }
+
+      if (
+        this.enemyPathStep < this.enemyPath.length &&
+        this.enemyPath[this.enemyPathStep] === 'forward'
+      ) {
+        let nextCell = { ...enemyCell };
+if (this.enemyDir === 'up') nextCell.y -= 1;
+if (this.enemyDir === 'down') nextCell.y += 1;
+if (this.enemyDir === 'left') nextCell.x -= 1;
+if (this.enemyDir === 'right') nextCell.x += 1;
+
+let nextX = nextCell.x * cellSizeX + cellSizeX / 2;
+let nextY = nextCell.y * cellSizeY + cellSizeY / 2;
+
+
+        if (!isBlocked(nextX - cellSizeX / 2, nextY - cellSizeY / 2, this.bordes, cellSizeX, cellSizeY)) {
+          this.enemyTargetCell = { x: nextX, y: nextY };
+          this.enemyMoving = true;
+          this.enemyPathStep++;
+          keepProcessing = false;
+        } else {
+          this.enemyPathStep = this.enemyPath.length;
+          keepProcessing = false;
+        }
+      } else {
+        keepProcessing = false;
+      }
+
+      if (!processAll) break;
     }
   }
 
+  if (this.enemyMoving && this.enemyTargetCell) {
+    const dx = this.enemyTargetCell.x - this.enemigo.x;
+    const dy = this.enemyTargetCell.y - this.enemigo.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < 2) {
+      this.enemigo.x = this.enemyTargetCell.x;
+      this.enemigo.y = this.enemyTargetCell.y;
+      this.enemyMoving = false;
+      this.enemyTargetCell = null;
+      this.enemigo.setVelocity(0, 0);
+    } else {
+      const angle = Math.atan2(dy, dx);
+      this.enemigo.setVelocity(Math.cos(angle) * enemySpeed, Math.sin(angle) * enemySpeed);
+    }
+  } else {
+    this.enemigo.setVelocity(0, 0);
+  }
+
+  if (this.enemyDir === 'up') this.enemigo.setAngle(-90);
+  else if (this.enemyDir === 'down') this.enemigo.setAngle(90);
+  else if (this.enemyDir === 'left') this.enemigo.setAngle(180);
+  else if (this.enemyDir === 'right') this.enemigo.setAngle(0);
+}}
+
+
+
+// --- GAME OVER ---
+    if (this.muerte === true) {
+      this.scene.start("muerte", { score: this.score, tiempo: this.tiempo});
+      this.scene.stop("arena");
+      this.coin = null;
+    }
+  }
 }

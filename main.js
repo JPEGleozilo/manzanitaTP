@@ -1,4 +1,4 @@
-import inicio from "./scenes/inicio.js";
+import inicio from "./scenes/Inicio.js";
 import arena from "./scenes/arena.js";
 import muerte from "./scenes/muerte.js";
 
@@ -7,7 +7,10 @@ const config = {
   type: Phaser.AUTO,
   width: 320,
   height: 180,
+  render: {
   pixelArt: true,
+  antialias: false
+  },
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -24,7 +27,7 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 0 },
-      debug: true,
+      debug: false,
     },
   },
   // List of scenes to load
