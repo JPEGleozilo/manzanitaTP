@@ -61,23 +61,31 @@ export default class muerte extends Phaser.Scene {
       this.lowscore = 0
     }
 
-    this.highscoreText = this.add.bitmapText(160, 150, "retro", `Hi-Score: ${lowscore}`).setOrigin(0.5, 0.5);
+    this.highscoreText = this.add.bitmapText(160, 150, "retro", `Hi-Score: ${Math.round(lowscore)}`).setOrigin(0.5, 0.5);
 
     this.highscore = highscore;
     this.lowscore = lowscore;
+
+    this.countdownTiempo = this.finalScore / 500
+    
+    if(this.countdownTiempo < 1) {
+      this.countdownTiempo = 1
+    }
+
+    console.log("countdown ", this.countdownTiempo)
   }
 
   update() {
     if (this.countdown = true) {
       if (this.tiempo > 0) {
-        this.tiempo --
+        this.tiempo -= 0.25
         this.tiempoText.setText(`Time: ${Math.round(this.tiempo)}s`);
       } else {
         this.tiempoEnd = true
       };
 
     if (this.score < this.finalScore) {
-      this.score += 6
+      this.score += this.countdownTiempo
       this.scoreText.setText(`Score: ${Math.round(this.score)}`);
     } else if (this.score > this.finalScore) {  
     this.score = this.finalScore
