@@ -1,4 +1,4 @@
-import inicio from "./scenes/Inicio.js";
+import inicio from "./scenes/inicio.js";
 import arena from "./scenes/arena.js";
 import muerte from "./scenes/muerte.js";
 
