@@ -11,7 +11,6 @@ function isBlocked(x, y, bordes, cellSizeX, cellSizeY) {
     y > maxY
   ) {
     return true;
-    console.log("bloqueado")
   }
 
   return bordes.getChildren().some(borde => {
@@ -81,13 +80,14 @@ export default class arena extends Phaser.Scene {
   preload() {
     this.load.image("fondo", "public/assets/fondo.png");
     this.load.image("manzana", "public/assets/manzanita.png");
-    this.load.image("moneda", "public/assets/diamond.png");
     this.load.image("borde", "public/assets/borde.png");
-    this.load.image("enemigo", "public/assets/Ninja.png");
+    this.load.image("viborita", "public/assets/Viborita cabeza.png");
+    this.load.image("viboritacu", "public/assets/Viborita cuerpo.png")
     this.load.bitmapFont("retro", "public/assets/fonts/Retro Gaming/RetroGaming.png", "public/assets/fonts/Retro Gaming/RetroGaming.xml");
     this.load.bitmapFont("uphe" , "public/assets/fonts/Upheaval/Upheaval.png", "public/assets/fonts/Upheaval/Upheaval.xml");
     this.load.spritesheet("manzanitaF", "public/assets/spritesheets/manzanita feliz.png", { frameWidth: 16, frameHeight: 16 });
-    this.load.spritesheet("manzanitaA", "public/assets/spritesheets/manzanita asustada.png", { frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet("manzanitaA", "public/assets/spritesheets/manzanita asustada.png", { frameWidth: 16, frameHeight: 16 });
+    this.load.spritesheet("monedita", "public/assets/spritesheets/moneda.png", { frameWidth: 8, frameHeight: 8 })
   }
 
   create() {
@@ -159,10 +159,18 @@ export default class arena extends Phaser.Scene {
       repeat: -1
     });
 
+
+    this.anims.create({
+      key: "giroM",
+      frames: this.anims.generateFrameNumbers( "monedita", { start: 0, end: 5}),
+      framerate: 1,
+      repeat: -1
+    })
+
     this.trailGroup = this.add.group();
     this.trailTimer = 0;
 
-    this.enemigo = this.physics.add.image(140, 90, "enemigo").setDisplaySize(16, 16);
+    this.enemigo = this.physics.add.image(140, 90, "viborita");
     this.enemigo.setCollideWorldBounds(true);
     this.enemigo.setBounce(0.2, 0.2)
     
@@ -210,7 +218,7 @@ export default class arena extends Phaser.Scene {
 
     this.countdown = 3
     this.countdownText = this.add.bitmapText(160, 90, "uphe", `${this.countdown}`)
-    .setOrigin(0.5, 0.5);
+    .setOrigin(0.5, 0.5).setDepth(-2);
 
     this.countdownEvent = this.time.addEvent ({
       delay: 1000,
@@ -235,12 +243,13 @@ export default class arena extends Phaser.Scene {
       delay: 2000,
       callback: () => {
         if (!this.coin) {
-          const x = Phaser.Math.Between(20, 288);
-          const y = Phaser.Math.Between(20, 154);
+          const x = Phaser.Math.Between(32, 288);
+          const y = Phaser.Math.Between(32, 154);
           this.coin = this.physics.add
-            .image(x, y, "moneda")
-            .setScale(0.075, 0.075);
+            .sprite(x, y, "monedita");
           this.coin.setCollideWorldBounds(true);
+
+          this.coin.anims.play("giroM", true)
 
           this.physics.add.overlap(this.player, this.coin, () => {
             if (this.coin) {
@@ -249,8 +258,7 @@ export default class arena extends Phaser.Scene {
               this.score += 50;
               this.scoretext.setText(`score: ${this.score}`);
 
-              const segment = this.add.image(this.enemigo.x, this.enemigo.y, "enemigo")
-                .setDisplaySize(16, 16)
+              const segment = this.add.image(this.enemigo.x, this.enemigo.y, "viboritacu")
               this.enemigoBody.push(segment);
             }
           });
@@ -263,8 +271,6 @@ export default class arena extends Phaser.Scene {
       delay: 3000,
       callback: () => {
         this.start = true;
-        this.enemigo.setVelocityX(80)
-            
       this.time.addEvent({
         delay: 1000,
         callback: () => {
@@ -351,7 +357,7 @@ export default class arena extends Phaser.Scene {
   });
 
 
-  const SEGMENT_SPACING = 8;
+  const SEGMENT_SPACING = 10;
 
   const dx = this.enemigo.x - this.lastHeadPos.x;
   const dy = this.enemigo.y - this.lastHeadPos.y;

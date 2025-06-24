@@ -87,8 +87,8 @@ export default class muerte extends Phaser.Scene {
     if (this.score < this.finalScore) {
       this.score += this.countdownTiempo
       this.scoreText.setText(`Score: ${Math.round(this.score)}`);
-    } else if (this.score > this.finalScore) {  
-    this.score = this.finalScore
+    } else if (this.score > Math.round(this.finalScore)) {  
+    this.score = Math.round(this.finalScore)
     } else {
       this.scoreEnd = true
     }};

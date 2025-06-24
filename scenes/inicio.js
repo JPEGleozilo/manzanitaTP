@@ -19,7 +19,7 @@ export default class inicio extends Phaser.Scene {
 
   create() {
     this.add.image(0, 0, "fondo").setOrigin(0, 0);
-    this.add.image(160, 50, "logo").setScale(0.25, 0.25);
+    this.add.image(160, 50, "logo").setOrigin(0.5, 0.5).setScale(2.25);
 
     this.add.bitmapText(160, 160, "retro", `Hi-Score: ${Math.round(this.highscore)}`).setOrigin(0.5, 0)
     
@@ -37,7 +37,7 @@ export default class inicio extends Phaser.Scene {
         this.scene.stop("inicio");
     }
 
-    if(this.highscore = null) {
+    if(this.highscore === null) {
       this.highscore = 0
     }
   }
