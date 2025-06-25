@@ -184,7 +184,7 @@ export default class arena extends Phaser.Scene {
       repeat: -1
     })
 
-    this.add.bitmapText(315, 175, "retro", "beta VER 3.0")
+    this.add.bitmapText(315, 175, "retro", "beta VER 3.1")
     .setOrigin(1, 1);
 
     this.trailGroup = this.add.group();
@@ -239,7 +239,7 @@ export default class arena extends Phaser.Scene {
 
     this.countdown = 3
     this.countdownText = this.add.bitmapText(160, 90, "uphe", `${this.countdown}`)
-    .setOrigin(0.5, 0.5).setDepth(-2);
+    .setOrigin(0.5, 0.5).setDepth(-5);
 
     this.countdownEvent = this.time.addEvent ({
       delay: 1000,
@@ -281,7 +281,7 @@ export default class arena extends Phaser.Scene {
               this.speedEnemigo += 2
               this.speed ++
 
-              const segment = this.physics.add.image(this.enemigo.x, this.enemigo.y, "viboritacu");
+              const segment = this.physics.add.image(this.enemigo.x, this.enemigo.y, "viboritacu").setDepth(-1);
               segment.setImmovable(true);
               segment.body.allowGravity = false;
               segment.body.setSize(12, 12);
@@ -372,7 +372,7 @@ export default class arena extends Phaser.Scene {
   if (this.trailTimer % Math.round(speed / 40) === 0) { // Cambia 4 por la frecuencia deseada
     const trail = this.add.image(this.player.x, this.player.y, "manzana")
       .setAlpha(0.5)
-      .setDepth(-1); // Detrás del jugador
+      .setDepth(-2); // Detrás del jugador
     trail.lifetime = 20; // Frames que dura la estela
     this.trailGroup.add(trail);
   }
@@ -388,12 +388,16 @@ export default class arena extends Phaser.Scene {
   });
 
 
-  const SEGMENT_FRAME_DELAY = Math.round(( this.speedEnemigo / 40 )); // frames entre cada "avance" del cuerpo
-this.bodyFrameCounter = (this.bodyFrameCounter || 0) + 1;
+  const SEGMENT_SPACING = Math.round(this.speedEnemigo / 12);
 
-if (this.bodyFrameCounter >= SEGMENT_FRAME_DELAY || this.bodyPos.length === 0) {
+  const dx = this.enemigo.x - this.lastHeadPos.x;
+  const dy = this.enemigo.y - this.lastHeadPos.y;
+  this.bodyDistance += Math.sqrt(dx * dx + dy * dy);
+    
+if (this.bodyDistance >= SEGMENT_SPACING || this.bodyPos.length === 0) {
   this.bodyPos.unshift({ x: this.enemigo.x, y: this.enemigo.y });
-  this.bodyFrameCounter = 0;
+  this.lastHeadPos = { x: this.enemigo.x, y: this.enemigo.y };
+  this.bodyDistance = 0;
 }
 
   // Limita el historial al largo del cuerpo + 1

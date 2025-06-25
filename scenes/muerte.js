@@ -72,7 +72,7 @@ export default class muerte extends Phaser.Scene {
       this.countdownTiempo = 1
     }
 
-    this.add.bitmapText(315, 175, "retro", "beta VER 3.0")
+    this.add.bitmapText(315, 175, "retro", "beta VER 3.1")
     .setOrigin(1, 1);
   }
 

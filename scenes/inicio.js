@@ -28,7 +28,7 @@ export default class inicio extends Phaser.Scene {
     this.add.bitmapText(160, 120, "retroR", "PRESS ENTER")
     .setOrigin(0.5, 0)
 
-    this.add.bitmapText(315, 175, "retro", "beta VER 3.0")
+    this.add.bitmapText(315, 175, "retro", "beta VER 3.1")
     .setOrigin(1, 1);
 
     this.enter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER); 
