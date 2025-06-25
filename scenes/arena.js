@@ -85,6 +85,8 @@ function snakePathfinding(start, goal, dir, bordes, cellSizeX, cellSizeY, cuerpo
   return null;
 }
 
+import { Ver } from "../main.js"
+
 export default class arena extends Phaser.Scene {
   constructor() {
     super("arena");
@@ -179,12 +181,12 @@ export default class arena extends Phaser.Scene {
 
     this.anims.create({
       key: "giroM",
-      frames: this.anims.generateFrameNumbers( "monedita", { start: 0, end: 5}),
+      frames: this.anims.generateFrameNumbers( "monedita", { start: 0, end: 11}),
       framerate: 1,
       repeat: -1
     })
 
-    this.add.bitmapText(315, 175, "retro", "beta VER 4.0")
+    this.add.bitmapText(315, 175, "retro", `${Ver}`)
     .setOrigin(1, 1);
 
     this.trailGroup = this.add.group();
@@ -263,7 +265,7 @@ export default class arena extends Phaser.Scene {
           callback: () => {
             this.tiempo += 1;
             this.tiempotext.setText(`${this.tiempo}`);
-            this.speedEnemigo += 1.5
+            this.speedEnemigo *= 1.015
           },
           loop: true,
         });
@@ -291,7 +293,7 @@ export default class arena extends Phaser.Scene {
               this.score += 50;
               this.scoretext.setText(`score: ${this.score}`);
               this.speedEnemigo --
-              this.speed ++
+              this.speed += 1.5
 
               const segment = this.physics.add.image(this.enemigo.x, this.enemigo.y, "viboritacu").setDepth(-1);
               segment.setImmovable(true);

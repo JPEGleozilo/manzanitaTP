@@ -1,3 +1,5 @@
+import { Ver } from "../main.js"
+
 export default class muerte extends Phaser.Scene {
   constructor() {
     super("muerte");
@@ -66,19 +68,25 @@ export default class muerte extends Phaser.Scene {
       this.countdownTiempo = 1
     }
 
-    this.add.bitmapText(315, 175, "retro", "beta VER 4.0")
+    this.add.bitmapText(315, 175, "retro", `${Ver}`)
     .setOrigin(1, 1);
 
     this.score = Math.round(this.score);
     this.finalScore = Math.round(this.finalScore);
     this.highscore = Math.round(this.highscore);
     this.lowscore = Math.round(this.lowscore)
+
+    this.Tcountdown = this.tiempo / ((this.finalScore - this.score) / this.countdownTiempo)
+
+    if(this.finalScore === this.score || this.countdownTiempo === 1) {
+      this.Tcountdown = 0.25
+    }
   }
 
   update() {
     if (this.countdown = true) {
       if (this.tiempo > 0) {
-        this.tiempo -= 0.25
+        this.tiempo -= this.Tcountdown
         this.tiempoText.setText(`Time: ${Math.round(this.tiempo)}s`);
       } else {
         this.tiempoEnd = true

@@ -11,6 +11,17 @@
 
 ## PATCH NOTES ##
 
+   ## Beta 4.1
+      -Corrección de aceleración:
+      Viborita: +1.5 m/s² >>> *1.0015 m/s² (Lineal >>> Exponencial).
+      Manzanita: +1 m/s² >>> +1.5 m/s² (Al recolectar Moneditas).
+      Viborita: -1 m/s² === -1 m/s² (Al recolectar Moneditas).
+
+      -Display de puntaje:
+      Las velocidades de descuento de segundos y aumento de puntaje ahora están normalizadas.
+
+      -Los puntajes se mantienen.
+
 ## Beta 4.0
 
    -Nuevo balance en el movimiento:
