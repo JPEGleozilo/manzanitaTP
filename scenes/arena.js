@@ -202,6 +202,9 @@ export default class arena extends Phaser.Scene {
     this.physics.add.collider(this.enemigo, this.player, () => {
       this.muerte = true;
     });
+    this.physics.add.collider(this.enemigoBody, this.player, () => {
+      this.muerte = true
+    });
 
     this.speedEnemigo = 0;
     this.start = false;
