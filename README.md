@@ -1,18 +1,24 @@
-# Phaser 3 Template
+## MANZANITA ##
 
-Plantilla para iniciar nuevos proyectos con PHASER 3.
+## Reglas
+   -Aguantá todo el tiempo que puedas escapando de la Viborita!
+   -Tu puntaje dependerá de tu supervivencia y la cantidad de Moneditas que hayas juntado.
+   -Pero cuidado! No tenés todo el tiempo del mundo, Viborita se pone cada vez más y más hambrienta.
 
-Contiene configuración inicial y buenas prácticas de estructuras de carpetas.
+## Controles
+   -Los controles son simples: cada flecha corresponde a su dirección. Y listo! Ya sabés jugar.
 
-## Cuando lo utilices
 
-No te olvides de customizarlo a tus necesidades.
+## PATCH NOTES ##
 
-1. Cuando lo utilices como Template desde el botón de GitHub, no olvides cambiar el nombre del repositorio acorde a tu proyecto en el wizard de creación de repositorios.
-1. Luego de clonar el repositorio en tu maquina local. Deberias:
-   1. Actualizar la version de Phaser a la version más actualizada en el archivo `index.html`. Ver la web: https://phaser.io/download/stable
-   1. También, dentro del `index.html` modificar el titulo de la pagina. Por ejemplo: `<title>My Game</title>`
-   1. Ejecutar el proyecto de forma local para ver que este funcionando correctamente. Si no es asi, deberias lograr que corra.
-   1. Una vez que este funcionando correctamente, hacer un commit con el mensaje "Update Phaser version and title".
-   1. Borrar los archivos dentro de la carpeta `/assets` y empezar a desarrollar.
-1. Por ultimo, una buena practica es: modificar este README.md, poner información relevante de tu juego, imagenes, videos, etc, y luego hacer un commit con el mensaje "Customize README.md".
+## Beta 4.0
+
+   -Nuevo balance en el movimiento:
+      La velocidad de Viborita ahora depende del tiempo que pase
+      Manzanita puede recolectar Moneditas para disminuir la velocidad de Viborita y aumentar la suya.
+
+   -Display de puntaje:
+      Ahora Score y Hi-Score están representados correctamente.
+
+   -Reseteo de puntajes:
+      Debido al revamp de los puntajes y la jugabilidad, todos los highscores fueron restaurados a 0

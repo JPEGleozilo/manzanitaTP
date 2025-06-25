@@ -6,7 +6,7 @@ export default class inicio extends Phaser.Scene {
   init(data) {
     this.highscore = (typeof data.highscore !== "undefined")
     ? data.highscore
-    : Number(localStorage.getItem("highscore")) || 0;
+    : Number(localStorage.getItem("highscore 4.0")) || 0;
   }
 
   preload() {
@@ -28,7 +28,7 @@ export default class inicio extends Phaser.Scene {
     this.add.bitmapText(160, 120, "retroR", "PRESS ENTER")
     .setOrigin(0.5, 0)
 
-    this.add.bitmapText(315, 175, "retro", "beta VER 3.1")
+    this.add.bitmapText(315, 175, "retro", "beta VER 4.0")
     .setOrigin(1, 1);
 
     this.enter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER); 

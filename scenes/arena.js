@@ -184,7 +184,7 @@ export default class arena extends Phaser.Scene {
       repeat: -1
     })
 
-    this.add.bitmapText(315, 175, "retro", "beta VER 3.1")
+    this.add.bitmapText(315, 175, "retro", "beta VER 4.0")
     .setOrigin(1, 1);
 
     this.trailGroup = this.add.group();
@@ -237,7 +237,7 @@ export default class arena extends Phaser.Scene {
 
     this.muerte = false;
 
-    this.countdown = 3
+    this.countdown = 5
     this.countdownText = this.add.bitmapText(160, 90, "uphe", `${this.countdown}`)
     .setOrigin(0.5, 0.5).setDepth(-5);
 
@@ -255,6 +255,18 @@ export default class arena extends Phaser.Scene {
             this.countdownText.setText (" ")
             }
           });
+        this.start = true;
+        
+        
+        this.time.addEvent({
+          delay: 1000,
+          callback: () => {
+            this.tiempo += 1;
+            this.tiempotext.setText(`${this.tiempo}`);
+            this.speedEnemigo += 1.5
+          },
+          loop: true,
+        });
         };
       },
       loop: true
@@ -278,7 +290,7 @@ export default class arena extends Phaser.Scene {
               this.coin = null;
               this.score += 50;
               this.scoretext.setText(`score: ${this.score}`);
-              this.speedEnemigo += 2
+              this.speedEnemigo --
               this.speed ++
 
               const segment = this.physics.add.image(this.enemigo.x, this.enemigo.y, "viboritacu").setDepth(-1);
@@ -296,21 +308,6 @@ export default class arena extends Phaser.Scene {
         }
       },
       loop: true,
-    });
-
-    this.time.addEvent({
-      delay: 3000,
-      callback: () => {
-        this.start = true;
-      this.time.addEvent({
-        delay: 1000,
-        callback: () => {
-          this.tiempo += 1;
-          this.tiempotext.setText(`${this.tiempo}`);
-        },
-        loop: true,
-      });
-      }
     });
   }
 

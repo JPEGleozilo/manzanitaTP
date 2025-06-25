@@ -32,48 +32,47 @@ export default class muerte extends Phaser.Scene {
     this.tiempoEnd = false
     this.scoreEnd = false
 
-    this.finalScore = this.score * (this.tiempo * 0.1);
+
+    this.finalScore = this.score * (this.tiempo * 0.075);
 
     if (this.finalScore < this.score) {
       this.finalScore = this.score 
     };
     
-    this.time.addEvent ({
+        this.time.addEvent ({
       delay: 2000,
       callback: () => {
         this.countdown = true
       }
     });
 
-    let highscore = Number(localStorage.getItem("highscore")) || 0;
+    let highscore = Number(localStorage.getItem("highscore 4.0")) || 0;
     let lowscore = highscore;
 
     
     if (this.finalScore > highscore) {
-      highscore = this.finalScore;
-      localStorage.setItem("highscore", highscore);
-    }
-
-    if (highscore === undefined) {
-      highscore = 0
-    }
-    if (this.lowscore === undefined) {
-      this.lowscore = 0
+      highscore = Math.round(this.finalScore);
+      localStorage.setItem("highscore 4.0", highscore);
     }
 
     this.highscoreText = this.add.bitmapText(160, 150, "retro", `Hi-Score: ${Math.round(lowscore)}`).setOrigin(0.5, 0.5);
 
-    this.highscore = highscore;
-    this.lowscore = lowscore;
+    this.highscore = Math.round(highscore);
+    this.lowscore = Math.round(lowscore);
 
-    this.countdownTiempo = this.finalScore / 500
+    this.countdownTiempo = Math.round(this.finalScore / 1000)
     
-    if(this.countdownTiempo < 1) {
+    if(this.finalScore) {
       this.countdownTiempo = 1
     }
 
-    this.add.bitmapText(315, 175, "retro", "beta VER 3.1")
+    this.add.bitmapText(315, 175, "retro", "beta VER 4.0")
     .setOrigin(1, 1);
+
+    this.score = Math.round(this.score);
+    this.finalScore = Math.round(this.finalScore);
+    this.highscore = Math.round(this.highscore);
+    this.lowscore = Math.round(this.lowscore)
   }
 
   update() {
@@ -85,18 +84,22 @@ export default class muerte extends Phaser.Scene {
         this.tiempoEnd = true
       };
 
+    if(this.score + this.countdownTiempo > this.finalScore){
+      this.countdownTiempo = this.finalScore - this.score
+    }
+
     if (this.score < this.finalScore) {
       this.score += this.countdownTiempo
-      this.scoreText.setText(`Score: ${Math.round(this.score)}`);
-    } else if (this.score > Math.round(this.finalScore)) {  
-    this.score = Math.round(this.finalScore)
+      this.scoreText.setText(`Score: ${this.score}`);
+    } else if (this.score > (this.finalScore)) {  
+    this.score = (this.finalScore)
     this.scoreEnd = true  
     } else {
     this.scoreEnd = true
     }};
 
     if (this.lowscore < this.score) {
-      this.highscoreText.setText(`Hi-Score: ${Math.round(this.score)}`)
+      this.highscoreText.setText(`Hi-Score: ${this.score}`)
     }
 
     if (this. tiempoEnd === true && this.scoreEnd === true) {
