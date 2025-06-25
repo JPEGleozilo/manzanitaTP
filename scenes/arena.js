@@ -1,4 +1,4 @@
-function isBlocked(x, y, bordes, cellSizeX, cellSizeY) {
+function isBlocked(x, y, bordes, cellSizeX, cellSizeY, cuerpo = []) {
   const minX = 17;
   const maxX = 304;
   const minY = 19;
@@ -13,12 +13,29 @@ function isBlocked(x, y, bordes, cellSizeX, cellSizeY) {
     return true;
   }
 
-  return bordes.getChildren().some(borde => {
-    return Phaser.Geom.Intersects.RectangleToRectangle(
+  // Chequea colisión con los bordes
+  if (bordes.getChildren().some(borde =>
+    Phaser.Geom.Intersects.RectangleToRectangle(
       new Phaser.Geom.Rectangle(x, y, cellSizeX, cellSizeY),
       borde.getBounds()
-    );
-  });
+    )
+  )) {
+    return true;
+  }
+
+  // Chequea colisión con el cuerpo de la serpiente
+  for (let segment of cuerpo) {
+    if (
+      Phaser.Math.Distance.Between(
+        x + cellSizeX / 2, y + cellSizeY / 2,
+        segment.x, segment.y
+      ) < Math.max(cellSizeX, cellSizeY) / 2
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function nextPosition(x, y, dir, cellSizeX, cellSizeY) {
@@ -36,7 +53,7 @@ function turnRight(dir) {
   return { up: 'right', right: 'down', down: 'left', left: 'up' }[dir];
 }
 
-function snakePathfinding(start, goal, dir, bordes, cellSizeX, cellSizeY) {
+function snakePathfinding(start, goal, dir, bordes, cellSizeX, cellSizeY, cuerpo) {
   const queue = [];
   const visited = new Set();
   queue.push({ x: start.x, y: start.y, dir, path: [] });
@@ -55,7 +72,7 @@ function snakePathfinding(start, goal, dir, bordes, cellSizeX, cellSizeY) {
     }
 
     const { x: nx, y: ny } = nextPosition(node.x, node.y, node.dir, cellSizeX, cellSizeY);
-    if (!isBlocked(nx, ny, bordes, cellSizeX, cellSizeY)) {
+    if (!isBlocked(nx, ny, bordes, cellSizeX, cellSizeY, cuerpo)) {
       queue.push({ x: nx, y: ny, dir: node.dir, path: [...node.path, 'forward'] });
     }
 
@@ -167,13 +184,17 @@ export default class arena extends Phaser.Scene {
       repeat: -1
     })
 
+    this.add.bitmapText(315, 175, "retro", "beta VER 3.0")
+    .setOrigin(1, 1);
+
     this.trailGroup = this.add.group();
     this.trailTimer = 0;
 
     this.enemigo = this.physics.add.image(140, 90, "viborita");
     this.enemigo.setCollideWorldBounds(true);
     this.enemigo.setBounce(0.2, 0.2)
-    
+    this.enemigo.body.setSize(16, 12);
+
     this.enemyDir = 'right';
     this.enemyPath = [];
     this.enemyPathStep = 0;
@@ -202,14 +223,11 @@ export default class arena extends Phaser.Scene {
     this.physics.add.collider(this.enemigo, this.player, () => {
       this.muerte = true;
     });
-    this.physics.add.collider(this.enemigoBody, this.player, () => {
-      this.muerte = true
-    });
 
-    this.speedEnemigo = 0;
+    this.speedEnemigo = 120;
     this.start = false;
 
-    this.monedas = 0;
+    this.monedas = 0;1
     this.score = 0;
     this.scoretext = this.add.bitmapText(21, 8, "retro", `score: ${this.score}`
     ).setOrigin(0, 0.5);
@@ -243,7 +261,7 @@ export default class arena extends Phaser.Scene {
     });
 
     this.time.addEvent({
-      delay: 2000,
+      delay: 1000,
       callback: () => {
         if (!this.coin) {
           const x = Phaser.Math.Between(32, 288);
@@ -260,9 +278,19 @@ export default class arena extends Phaser.Scene {
               this.coin = null;
               this.score += 50;
               this.scoretext.setText(`score: ${this.score}`);
+              this.speedEnemigo += 2
+              this.speed ++
 
-              const segment = this.add.image(this.enemigo.x, this.enemigo.y, "viboritacu")
+              const segment = this.physics.add.image(this.enemigo.x, this.enemigo.y, "viboritacu");
+              segment.setImmovable(true);
+              segment.body.allowGravity = false;
+              segment.body.setSize(12, 12);
               this.enemigoBody.push(segment);
+            
+              this.physics.add.collider(segment, this.player, () => {
+                this.muerte = true
+              });
+
             }
           });
         }
@@ -295,19 +323,19 @@ export default class arena extends Phaser.Scene {
   let vx = 0;
   let vy = 0;
 
-  if (this.cursors.left.isDown && !this.player.body.blocked.left) {
+  if (this.cursors.left.isDown) {
     vx -= 1;
     if (vy === 0) {
       this.player.anims.play("Oeste F", true)
     }
   };
-  if (this.cursors.right.isDown && !this.player.body.blocked.right) {
+  if (this.cursors.right.isDown) {
     vx += 1;
     if (vy === 0) {
       this.player.anims.play("Este F", true)
     }
   };
-  if (this.cursors.up.isDown && !this.player.body.blocked.up) {
+  if (this.cursors.up.isDown) {
     vy -= 1;
     if (vx === 0){
       this.player.anims.play("Norte F", true)
@@ -317,7 +345,7 @@ export default class arena extends Phaser.Scene {
       this.player.anims.play("NorE F", true)
     }
   };
-  if (this.cursors.down.isDown && !this.player.body.blocked.down) {
+  if (this.cursors.down.isDown) {
     vy += 1;
     if (vx === 0) {
       this.player.anims.play("Sur F", true)
@@ -341,7 +369,7 @@ export default class arena extends Phaser.Scene {
   this.player.setVelocityY(vy * speed);
 
   this.trailTimer = (this.trailTimer || 0) + 1;
-  if (this.trailTimer % 4 === 0) { // Cambia 4 por la frecuencia deseada
+  if (this.trailTimer % Math.round(speed / 40) === 0) { // Cambia 4 por la frecuencia deseada
     const trail = this.add.image(this.player.x, this.player.y, "manzana")
       .setAlpha(0.5)
       .setDepth(-1); // Detrás del jugador
@@ -360,17 +388,13 @@ export default class arena extends Phaser.Scene {
   });
 
 
-  const SEGMENT_SPACING = 10;
+  const SEGMENT_FRAME_DELAY = Math.round(( this.speedEnemigo / 40 )); // frames entre cada "avance" del cuerpo
+this.bodyFrameCounter = (this.bodyFrameCounter || 0) + 1;
 
-  const dx = this.enemigo.x - this.lastHeadPos.x;
-  const dy = this.enemigo.y - this.lastHeadPos.y;
-  this.bodyDistance += Math.sqrt(dx * dx + dy * dy);
-      
-  if (this.bodyDistance >= SEGMENT_SPACING || this.bodyPos.length === 0) {
-    this.bodyPos.unshift({ x: this.enemigo.x, y: this.enemigo.y });
-    this.lastHeadPos = { x: this.enemigo.x, y: this.enemigo.y };
-    this.bodyDistance = 0;
-  }
+if (this.bodyFrameCounter >= SEGMENT_FRAME_DELAY || this.bodyPos.length === 0) {
+  this.bodyPos.unshift({ x: this.enemigo.x, y: this.enemigo.y });
+  this.bodyFrameCounter = 0;
+}
 
   // Limita el historial al largo del cuerpo + 1
   if (this.bodyPos.length > this.enemigoBody.length + 1) {
@@ -409,7 +433,7 @@ export default class arena extends Phaser.Scene {
 
   // --- ENEMIGO PATHFINDING OPTIMIZADO ---
   if (this.start === true) {
-  this.speedEnemigo = 120;
+  
 
   const cellSizeX = 16;
   const cellSizeY = 9;
@@ -458,7 +482,7 @@ export default class arena extends Phaser.Scene {
       y: clampToGrid(this.player.y, minY, maxY, cellSizeY)
     };
 
-    const newPath = snakePathfinding(start, goal, this.enemyDir, this.bordes, cellSizeX, cellSizeY);
+    const newPath = snakePathfinding(start, goal, this.enemyDir, this.bordes, cellSizeX, cellSizeY, this.enemigoBody);
     if (newPath) {
       this.enemyPath = newPath;
       this.enemyPathStep = 0;
