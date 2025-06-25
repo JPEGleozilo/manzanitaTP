@@ -60,7 +60,7 @@ export default class muerte extends Phaser.Scene {
     this.highscore = Math.round(highscore);
     this.lowscore = Math.round(lowscore);
 
-    this.countdownTiempo = Math.round(this.finalScore / 1000)
+    this.countdownTiempo = Math.round(this.finalScore / 250);
     
     if(this.finalScore) {
       this.countdownTiempo = 1
