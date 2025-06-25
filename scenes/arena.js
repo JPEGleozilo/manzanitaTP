@@ -204,7 +204,22 @@ export default class arena extends Phaser.Scene {
     this.enemigoBody = []
     this.bodyPos = []
     this.enemigoDis = 0;
-    this.lastHeadPos = { x: this.enemigo.x, y: this.enemigo.y };  
+    this.lastHeadPos = { x: this.enemigo.x, y: this.enemigo.y };
+    ; // Tamaño de celda horizontal
+
+// Crea dos segmentos a la izquierda de la cabeza
+for (let i = 1; i <= 2; i++) {
+  const segment = this.physics.add.image(this.enemigo.x - i * 9, this.enemigo.y, "viboritacu").setDepth(-1);
+  segment.setImmovable(true);
+  segment.body.allowGravity = false;
+  segment.body.setSize(12, 12); // hitbox pequeña
+  this.enemigoBody.push(segment);
+
+  // Colisión con el jugador
+  this.physics.add.collider(segment, this.player, () => {
+    this.muerte = true;
+  });
+}
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -239,7 +254,7 @@ export default class arena extends Phaser.Scene {
 
     this.muerte = false;
 
-    this.countdown = 5
+    this.countdown = 3
     this.countdownText = this.add.bitmapText(160, 90, "uphe", `${this.countdown}`)
     .setOrigin(0.5, 0.5).setDepth(-5);
 
@@ -257,10 +272,10 @@ export default class arena extends Phaser.Scene {
             this.countdownText.setText (" ")
             }
           });
-        this.start = true;
+          this.start = true;
         
         
-        this.time.addEvent({
+          this.time.addEvent({
           delay: 1000,
           callback: () => {
             this.tiempo += 1;
@@ -269,12 +284,8 @@ export default class arena extends Phaser.Scene {
           },
           loop: true,
         });
-        };
-      },
-      loop: true
-    });
 
-    this.time.addEvent({
+        this.time.addEvent({
       delay: 1000,
       callback: () => {
         if (!this.coin) {
@@ -310,7 +321,14 @@ export default class arena extends Phaser.Scene {
         }
       },
       loop: true,
+      });
+
+        };
+      },
+      loop: true
     });
+
+    
   }
 
  update(time) {

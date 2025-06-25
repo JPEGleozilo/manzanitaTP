@@ -24,10 +24,6 @@ export default class muerte extends Phaser.Scene {
     this.restartText = this.add.bitmapText(160, 130, "retroR", "Press R to restart").setOrigin(0.5, 0.5);
     this.restartText.visible = false
 
-    
-
-    this.input.manager.canvas.style.cursor = "none";
-
     this.Rkey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R); 
 
     this.countdown = false

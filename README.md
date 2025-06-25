@@ -11,14 +11,24 @@
 
 ## PATCH NOTES ##
 
+   ## Beta 4.2
+      -Viborita empieza con más cuerpo.
+
+      -Aparición de Moneditas:
+         Ahora las Moneditas no aparecen durante el tiempo de gracia.
+
+      -Disminución del tiempo de gracia:
+            5 >>> 3
+         Para evitar un tiempo muerto, el tiempo de gracia se volvió a bajar de 5 a 3.
+   
    ## Beta 4.1
       -Corrección de aceleración:
-      Viborita: +1.5 m/s² >>> *1.0015 m/s² (Lineal >>> Exponencial).
-      Manzanita: +1 m/s² >>> +1.5 m/s² (Al recolectar Moneditas).
-      Viborita: -1 m/s² === -1 m/s² (Al recolectar Moneditas).
+         Viborita: +1.5 m/s² >>> *1.0015 m/s² (Lineal >>> Exponencial).
+         Manzanita: +1 m/s² >>> +1.5 m/s² (Al recolectar Moneditas).
+         Viborita: -1 m/s² === -1 m/s² (Al recolectar Moneditas).
 
       -Display de puntaje:
-      Las velocidades de descuento de segundos y aumento de puntaje ahora están normalizadas.
+         Las velocidades de descuento de segundos y aumento de puntaje ahora están normalizadas.
 
       -Los puntajes se mantienen.
 

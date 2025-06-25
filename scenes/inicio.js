@@ -24,8 +24,6 @@ export default class inicio extends Phaser.Scene {
     this.add.image(160, 50, "logo").setOrigin(0.5, 0.5).setScale(2.25);
 
     this.add.bitmapText(160, 160, "retro", `Hi-Score: ${Math.round(this.highscore)}`).setOrigin(0.5, 0)
-    
-    this.input.manager.canvas.style.cursor = "none";
 
     this.add.bitmapText(160, 120, "retroR", "PRESS ENTER")
     .setOrigin(0.5, 0)
