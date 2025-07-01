@@ -13,7 +13,8 @@ export default class muerte extends Phaser.Scene {
   preload() {
     this.load.bitmapFont("upheR", "public/assets/fonts/Upheaval/UpheavalRED.png", "public/assets/fonts/Upheaval/UpheavalRED.xml");
     this.load.bitmapFont("retro", "public/assets/fonts/Retro Gaming/RetroGaming.png");
-    this.load.bitmapFont("retroR", "public/assets/font/Retro Gaming/RetroGamingRED.png")
+    this.load.bitmapFont("retroR", "public/assets/font/Retro Gaming/RetroGamingRED.png");
+    this.load.audio("counter", "public/assets/audio/counter.mp3")
   }
 
   create(data) {
@@ -23,6 +24,8 @@ export default class muerte extends Phaser.Scene {
     this.scoreText = this.add.bitmapText(160, 110, "retro", `Score: ${this.score}`).setOrigin(0.5, 0.5);
     this.restartText = this.add.bitmapText(160, 130, "retroR", "Press R to restart").setOrigin(0.5, 0.5);
     this.restartText.visible = false
+
+    this.countersound = this.sound.add("counter", {volume: 0.5})
 
     this.Rkey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R); 
 
@@ -38,7 +41,7 @@ export default class muerte extends Phaser.Scene {
     };
     
         this.time.addEvent ({
-      delay: 2000,
+      delay: 1000,
       callback: () => {
         this.countdown = true
       }
@@ -80,12 +83,14 @@ export default class muerte extends Phaser.Scene {
   }
 
   update() {
-    if (this.countdown = true) {
+    if (this.countdown === true) {
       if (this.tiempo > 0) {
+        this.countersound.play()
         this.tiempo -= this.Tcountdown
         this.tiempoText.setText(`Time: ${Math.round(this.tiempo)}s`);
       } else {
         this.tiempoEnd = true
+        this.tiempoText.setText("Time: 0s")
       };
 
     if(this.score + this.countdownTiempo > this.finalScore){

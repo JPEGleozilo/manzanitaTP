@@ -11,6 +11,13 @@
 
 ## PATCH NOTES ##
 
+## Beta 5.0
+   -Estan llegando los podercitos!
+      -Se agregó un escudito que te salva de una mordidita y congela temporalmente a la viborita.
+   
+   -La manzanita ya no es sorda
+      -Nuevos efectos de sonido. 
+
    ## Beta 4.2
       -Viborita empieza con más cuerpo.
 

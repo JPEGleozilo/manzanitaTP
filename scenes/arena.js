@@ -85,8 +85,6 @@ function snakePathfinding(start, goal, dir, bordes, cellSizeX, cellSizeY, cuerpo
   return null;
 }
 
-import { Ver } from "../main.js"
-
 export default class arena extends Phaser.Scene {
   constructor() {
     super("arena");
@@ -102,99 +100,173 @@ export default class arena extends Phaser.Scene {
     this.load.image("borde", "public/assets/borde.png");
     this.load.image("viborita", "public/assets/Viborita cabeza.png");
     this.load.image("viboritacu", "public/assets/Viborita cuerpo.png")
+    this.load.audio("coin", "public/assets/audio/coin.mp3");
+    this.load.audio("death", "public/assets/audio/Hit.mp3");
+    this.load.audio("powerup", "public/assets/audio/Powerup.mp3");
+    this.load.audio("shieldBreak" , "public/assets/audio/play.mp3");
     this.load.bitmapFont("retro", "public/assets/fonts/Retro Gaming/RetroGaming.png", "public/assets/fonts/Retro Gaming/RetroGaming.xml");
     this.load.bitmapFont("uphe" , "public/assets/fonts/Upheaval/Upheaval.png", "public/assets/fonts/Upheaval/Upheaval.xml");
     this.load.spritesheet("manzanitaF", "public/assets/spritesheets/manzanita feliz.png", { frameWidth: 16, frameHeight: 16 });
-    this.load.spritesheet("manzanitaA", "public/assets/spritesheets/manzanita asustada.png", { frameWidth: 16, frameHeight: 16 });
-    this.load.spritesheet("monedita", "public/assets/spritesheets/moneda.png", { frameWidth: 8, frameHeight: 8 })
+    this.load.spritesheet("manzanitaE", "public/assets/spritesheets/manzanita shield.png", {frameWidth: 16, frameHeight: 16});
+    this.load.spritesheet("monedita", "public/assets/spritesheets/moneda.png", { frameWidth: 8, frameHeight: 8 });
+    this.load.spritesheet("escudito", "public/assets/spritesheets/shield.png", { frameWidth: 16, frameHeight: 16});
   }
 
   create() {
-    this.add.image(0, 0, "fondo").setOrigin(0, 0).setDepth(-10);;
+    this.add.image(0, 0, "fondo").setOrigin(0, 0).setDepth(-10);
+
+    this.shieldSkin = false
 
     this.player = this.physics.add.sprite(180, 90, "manzanitaF");
     this.player.setCollideWorldBounds(true);
 
     this.anims.create({
-      key: 'Oeste F',
-      frames: [ { key: 'manzanitaF',  frame: 3 } ],
-      frameRate: 10,
-      repeat: -1
+        key: 'OesteF',
+        frames: [ { key: 'manzanitaF',  frame: 3 } ],
+        frameRate: 10,
+        repeat: -1
     });
 
     this.anims.create({
-      key: 'Idle F',
+      key: 'IdleF',
       frames: [ { key: 'manzanitaF',  frame: 4 } ],
       frameRate: 10,
       repeat: -1
     });
 
     this.anims.create({
-      key: 'Este F',
+      key: 'EsteF',
       frames: [ {key: 'manzanitaF',  frame: 5 } ],
       frameRate: 10,
       repeat: -1
     });
 
     this.anims.create({
-      key: 'Norte F',
+      key: 'NorteF',
       frames: [ {key: 'manzanitaF',  frame: 1 } ],
       frameRate: 10,
       repeat: -1
-    });
+      });
 
     this.anims.create({
-      key: 'Sur F',
+      key: 'SurF',
       frames: [ {key: 'manzanitaF',  frame: 7 } ],
       frameRate: 10,
       repeat: -1
     });
 
     this.anims.create({
-      key: 'NorO F',
+      key: 'NorOF',
       frames: [ {key: 'manzanitaF',  frame: 0 } ],
       frameRate: 10,
       repeat: -1
     });
 
     this.anims.create({
-      key: 'NorE F',
+      key: 'NorEF',
       frames: [ {key: 'manzanitaF',  frame: 2 } ],
       frameRate: 10,
       repeat: -1
     });
 
     this.anims.create({
-      key: 'SurO F',
+      key: 'SurOF',
       frames: [ {key: 'manzanitaF',  frame: 6 } ],
       frameRate: 10,
       repeat: -1
     });
 
     this.anims.create({
-      key: 'SurE F',
+      key: 'SurEF',
       frames: [ {key: 'manzanitaF',  frame: 8 } ],
       frameRate: 10,
       repeat: -1
     });
 
+    
+    this.anims.create({
+      key: 'OesteS',
+      frames: [ { key: 'manzanitaE',  frame: 3 } ],
+      frameRate: 10,
+      repeat: -1
+    })
+
+    this.anims.create({
+      key: 'IdleS',
+      frames: [ { key: 'manzanitaE',  frame: 4 } ],
+      frameRate: 10,
+      repeat: -1
+    });
+    
+    this.anims.create({
+      key: 'EsteS',
+      frames: [ {key: 'manzanitaE',  frame: 5 } ],
+      frameRate: 10,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'NorteS',
+      frames: [ {key: 'manzanitaE',  frame: 1 } ],
+      frameRate: 10,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'SurS',
+      frames: [ {key: 'manzanitaE',  frame: 7 } ],
+      frameRate: 10,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'NorOS',
+      frames: [ {key: 'manzanitaE',  frame: 0 } ],
+      frameRate: 10,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'NorES',
+      frames: [ {key: 'manzanitaE',  frame: 2 } ],
+      frameRate: 10,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'SurOS',
+      frames: [ {key: 'manzanitaE',  frame: 6 } ],
+      frameRate: 10,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'SurES',
+      frames: [ {key: 'manzanitaE',  frame: 8 } ],
+      frameRate: 10,
+      repeat: -1
+    });
 
     this.anims.create({
       key: "giroM",
       frames: this.anims.generateFrameNumbers( "monedita", { start: 0, end: 11}),
       framerate: 1,
       repeat: -1
-    })
+    });
 
-    this.add.bitmapText(315, 175, "retro", `${Ver}`)
-    .setOrigin(1, 1);
+    this.anims.create({
+      key: "escudoB",
+      frames: this.anims.generateFrameNumbers( "escudito", {start: 0, end: 8}),
+      framerate: 0.01,
+      repeat: -1
+    });
 
     this.trailGroup = this.add.group();
     this.trailTimer = 0;
 
     this.enemigo = this.physics.add.image(140, 90, "viborita");
     this.enemigo.setCollideWorldBounds(true);
-    this.enemigo.setBounce(0.2, 0.2)
+    this.enemigo.setBounce(1)
     this.enemigo.body.setSize(16, 12);
 
     this.enemyDir = 'right';
@@ -217,7 +289,41 @@ for (let i = 1; i <= 2; i++) {
 
   // Colisión con el jugador
   this.physics.add.collider(segment, this.player, () => {
-    this.muerte = true;
+    if(this.shieldOn === false) {
+      this.muerte = true
+    } else if (this.shieldOn === true) {
+      this.shieldPending = true
+      this.snakeStop = true
+      this.pendingStop = true
+      this.shieldOff.play()
+      this.enemigo.setVelocity(0, 0);
+      this.animStop = false
+      this.time.addEvent({
+                    delay: 500,
+                    callback: () => {
+                      if (this.animStop != true){
+                      if(this.shieldSkin === true) {
+                        this.shieldSkin = false
+                      } else if (this.shieldSkin === false) {
+                        this.shieldSkin = true
+                      }}
+                    },
+                    loop: true
+                  });
+                  
+                  this.time.addEvent({
+                    delay: 1500,
+                    callback: () => {
+                      this.snakeStop = false
+                      if (this.shieldPending === true) {
+                        this.shieldSkin = false
+                        this.shieldOn = false
+                        this.shieldPending = false
+                        this.animStop = true
+                      }
+                    }
+                  })
+    }
   });
 }
 
@@ -225,6 +331,11 @@ for (let i = 1; i <= 2; i++) {
 
     this.input.manager.canvas.style.cursor = "none";
     
+    this.coinsound = this.sound.add("coin", {volume: 0.4});
+    this.deathsound = this.sound.add("death", {volume: 3.5});
+    this.powerupsound = this.sound.add("powerup", {volume: 1});
+    this.shieldOff = this.sound.add("shieldBreak", {volume: 1});
+
     this.bordes = this.physics.add.staticGroup();
     this.bordes.create(16, 16, "borde").setOrigin(0, 0).setDisplaySize(288, 2).refreshBody();
     this.bordes.create(16, 162, "borde").setOrigin(0, 0).setDisplaySize(288, 2).refreshBody();
@@ -237,14 +348,56 @@ for (let i = 1; i <= 2; i++) {
     this.physics.add.collider(this.enemigo, this.bordes, () => {
       this.colisionEnemigo = true;
     });
-    this.physics.add.collider(this.enemigo, this.player, () => {
-      this.muerte = true;
+    this.physics.add.overlap(this.enemigo, this.player, () => {
+      if (this.shieldOn === false) {
+        this.muerte = true
+      } else if (this.shieldOn === true) {
+        this.shieldPending = true
+        this.snakeStop = true
+        this.pendingStop = true
+        this.shieldOff.play()
+        this.animStop = false
+
+        this.enemigo.setVelocity(0, 0);
+                    this.time.addEvent({
+                    delay: 500,
+                    callback: () => {
+                      if (this.animStop != true){
+                      if(this.shieldSkin === true) {
+                        this.shieldSkin = false
+                      } else if (this.shieldSkin === false) {
+                        this.shieldSkin = true
+                      }}
+                    },
+                    loop: true
+                  });
+                  
+                  this.time.addEvent({
+                    delay: 1500,
+                    callback: () => {
+                      this.snakeStop = false
+                      if (this.shieldPending === true) {
+                        this.shieldSkin = false
+                        this.shieldOn = false
+                        this.shieldPending = false
+                        this.animStop = true
+                      }
+                    }
+                  })
+
+      };
+      
+      
+
     });
 
+    this.enemigo.body.setImmovable(true);
     this.speedEnemigo = 120;
+    this.pendingStop = false;
+    this.snakeStop = false;
     this.start = false;
 
-    this.monedas = 0;1
+    this.monedas = 0;
     this.score = 0;
     this.scoretext = this.add.bitmapText(21, 8, "retro", `score: ${this.score}`
     ).setOrigin(0, 0.5);
@@ -252,6 +405,7 @@ for (let i = 1; i <= 2; i++) {
     this.tiempo = 0;
     this.tiempotext = this.add.bitmapText(298, 8, "retro", `${this.tiempo}`).setOrigin(1, 0.5);
 
+    this.shieldOn = false;
     this.muerte = false;
 
     this.countdown = 3
@@ -280,7 +434,9 @@ for (let i = 1; i <= 2; i++) {
           callback: () => {
             this.tiempo += 1;
             this.tiempotext.setText(`${this.tiempo}`);
-            this.speedEnemigo *= 1.015
+            if(this.snakeStop === false){
+              this.speedEnemigo = Math.round(this.speedEnemigo * 1.025)
+            }
           },
           loop: true,
         });
@@ -288,23 +444,25 @@ for (let i = 1; i <= 2; i++) {
         this.time.addEvent({
       delay: 1000,
       callback: () => {
-        if (!this.coin) {
+        if (!this.coin && !this.shield) {
           const x = Phaser.Math.Between(32, 288);
           const y = Phaser.Math.Between(32, 154);
-          this.coin = this.physics.add
-            .sprite(x, y, "monedita");
-          this.coin.setCollideWorldBounds(true);
-
-          this.coin.anims.play("giroM", true)
-
-          this.physics.add.overlap(this.player, this.coin, () => {
+          this.chance = Phaser.Math.Between(0, 100);
+          
+          if(this.chance > 99){
+            this.coin = this.physics.add.sprite(x, y, "monedita");
+            this.coin.setCollideWorldBounds(true);
+            this.coin.anims.play("giroM", true);
+          
+            this.physics.add.overlap(this.player, this.coin, () => {
             if (this.coin) {
+              this.coinsound.play();
               this.coin.destroy();
               this.coin = null;
               this.score += 50;
               this.scoretext.setText(`score: ${this.score}`);
               this.speedEnemigo --
-              this.speed += 1.5
+              this.speed += 2
 
               const segment = this.physics.add.image(this.enemigo.x, this.enemigo.y, "viboritacu").setDepth(-1);
               segment.setImmovable(true);
@@ -313,11 +471,117 @@ for (let i = 1; i <= 2; i++) {
               this.enemigoBody.push(segment);
             
               this.physics.add.collider(segment, this.player, () => {
-                this.muerte = true
+                if (this.shieldOn === false) {
+                  this.muerte = true
+                } else if (this.shieldOn === true) {
+                  this.shieldPending = true
+                  this.snakeStop = true
+                  this.pendingStop = true
+                  this.shieldOff.play()
+                  this.enemigo.setVelocity(0, 0);
+                  this.animStop = false
+                  
+                  this.time.addEvent({
+                    delay: 500,
+                    callback: () => {
+                      if (this.animStop != true){
+                      if(this.shieldSkin === true) {
+                        this.shieldSkin = false
+                      } else if (this.shieldSkin === false) {
+                        this.shieldSkin = true
+                      }}
+                    },
+                    loop: true
+                  });
+                  
+                  this.time.addEvent({
+                    delay: 1500,
+                    callback: () => {
+                      this.snakeStop = false
+                      if (this.shieldPending === true) {
+                        this.shieldSkin = false
+                        this.shieldOn = false
+                        this.shieldPending = false
+                        this.animStop = true
+                      }
+                    }
+                  })
+                }
+                
               });
 
             }
           });
+          
+          }else if (this.chance <= 99) {
+            this.shield = this.physics.add.sprite(x, y, "escudito");
+            this.shield.setCollideWorldBounds(true);
+            this.shield.anims.play("escudoB", true);
+          
+            this.physics.add.overlap(this.player, this.shield, () => {
+            if (this.shield) {
+              this.shieldOn = true
+              this.animStop = true
+              this.shieldSkin = true
+              this.shieldPending = false
+              this.powerupsound.play();
+              this.shield.destroy();
+              this.shield = null;
+              this.score += 100;
+              this.scoretext.setText(`score: ${this.score}`);
+              this.speed += 2
+
+              const segment = this.physics.add.image(this.enemigo.x, this.enemigo.y, "viboritacu").setDepth(-1);
+              segment.setImmovable(true);
+              segment.body.allowGravity = false;
+              segment.body.setSize(12, 12);
+              this.enemigoBody.push(segment);
+            
+              this.physics.add.collider(segment, this.player, () => {
+                if (this.shieldOn === false) {
+                  this.muerte = true
+                } else if (this.shieldOn === true) {
+                  this.shieldPending = true
+                  this.snakeStop = true
+                  this.pendingStop = true
+                  this.shieldOff.play()
+                  this.enemigo.setVelocity(0, 0);
+                  this.animStop = false
+                  
+                    this.time.addEvent({
+                    delay: 500,
+                    callback: () => {
+                      if (this.animStop != true){
+                      if(this.shieldSkin === true) {
+                        this.shieldSkin = false
+                      } else if (this.shieldSkin === false) {
+                        this.shieldSkin = true
+                      }}
+                    },
+                    loop: true
+                  });
+                  
+                  this.time.addEvent({
+                    delay: 1500,
+                    callback: () => {
+                      this.snakeStop = false
+                      if (this.shieldPending === true) {
+                        this.shieldSkin = false
+                        this.shieldOn = false
+                        this.shieldPending = false
+                        this.animStop = true
+                      }
+                    }
+                  })
+                } 
+              });
+
+            }
+          });
+            
+          }
+
+          
         }
       },
       loop: true,
@@ -333,6 +597,30 @@ for (let i = 1; i <= 2; i++) {
 
  update(time) {
 
+  this.player.setImmovable(false);
+  
+  if (this.shieldSkin === false) {
+    this.oeste = this.player.anims.play("OesteF", true);
+    this.idle = this.player.anims.play("IdleF", true);
+    this.este = this.player.anims.play("EsteF", true);
+    this.norte = this.player.anims.play("NorteF", true);
+    this.sur = this.player.anims.play("SurF", true);
+    this.norOeste = this.player.anims.play("NorOF", true);
+    this.norEste = this.player.anims.play("NorEF", true);
+    this.surOeste = this.player.anims.play("SurOF", true);
+    this.surEste = this.player.anims.play("SurEF", true);
+  } else if (this.shieldSkin === true) {
+    this.oeste = this.player.anims.play("OesteS", true);
+    this.idle = this.player.anims.play("IdleS", true);
+    this.este = this.player.anims.play("EsteS", true);
+    this.norte = this.player.anims.play("NorteS", true);
+    this.sur = this.player.anims.play("SurS", true);
+    this.norOeste = this.player.anims.play("NorOS", true);
+    this.norEste = this.player.anims.play("NorES", true);
+    this.surOeste = this.player.anims.play("SurOS", true);
+    this.surEste = this.player.anims.play("SurES", true);
+  }
+
 
   // --- MOVIMIENTO DEL JUGADOR ---
 
@@ -342,35 +630,15 @@ for (let i = 1; i <= 2; i++) {
 
   if (this.cursors.left.isDown) {
     vx -= 1;
-    if (vy === 0) {
-      this.player.anims.play("Oeste F", true)
-    }
   };
   if (this.cursors.right.isDown) {
     vx += 1;
-    if (vy === 0) {
-      this.player.anims.play("Este F", true)
-    }
   };
   if (this.cursors.up.isDown) {
     vy -= 1;
-    if (vx === 0){
-      this.player.anims.play("Norte F", true)
-    } else if (vx < 0) {
-      this.player.anims.play("NorO F", true)
-    } else if (vx > 0) {
-      this.player.anims.play("NorE F", true)
-    }
   };
   if (this.cursors.down.isDown) {
     vy += 1;
-    if (vx === 0) {
-      this.player.anims.play("Sur F", true)
-    } else if (vx < 0) {
-      this.player.anims.play("SurO F", true)
-    } else if (vx > 0) {
-      this.player.anims.play("SurE F", true)
-    }
   };
 
   if (vx !== 0 && vy !== 0) {
@@ -378,9 +646,31 @@ for (let i = 1; i <= 2; i++) {
     vy *= Math.SQRT1_2;
   }
 
-  if (vx === 0 && vy === 0) {
-    this.player.anims.play("Idle F", true)
-  }
+  // Determina el key de animación según dirección y shieldSkin
+let animKey = null;
+if (vx === 0 && vy === 0) {
+  animKey = this.shieldSkin ? "IdleS" : "IdleF";
+} else if (vx < 0 && vy === 0) {
+  animKey = this.shieldSkin ? "OesteS" : "OesteF";
+} else if (vx > 0 && vy === 0) {
+  animKey = this.shieldSkin ? "EsteS" : "EsteF";
+} else if (vy < 0 && vx === 0) {
+  animKey = this.shieldSkin ? "NorteS" : "NorteF";
+} else if (vy > 0 && vx === 0) {
+  animKey = this.shieldSkin ? "SurS" : "SurF";
+} else if (vx < 0 && vy < 0) {
+  animKey = this.shieldSkin ? "NorOS" : "NorOF";
+} else if (vx > 0 && vy < 0) {
+  animKey = this.shieldSkin ? "NorES" : "NorEF";
+} else if (vx < 0 && vy > 0) {
+  animKey = this.shieldSkin ? "SurOS" : "SurOF";
+} else if (vx > 0 && vy > 0) {
+  animKey = this.shieldSkin ? "SurES" : "SurEF";
+}
+
+if (animKey) {
+  this.player.anims.play(animKey, true);
+}
 
   this.player.setVelocityX(vx * speed);
   this.player.setVelocityY(vy * speed);
@@ -405,7 +695,7 @@ for (let i = 1; i <= 2; i++) {
   });
 
 
-  const SEGMENT_SPACING = Math.round(this.speedEnemigo / 12);
+  const SEGMENT_SPACING = Math.round(this.oldEnemySpeed / 12);
 
   const dx = this.enemigo.x - this.lastHeadPos.x;
   const dy = this.enemigo.y - this.lastHeadPos.y;
@@ -425,7 +715,7 @@ if (this.bodyDistance >= SEGMENT_SPACING || this.bodyPos.length === 0) {
   // --- MOVER LOS SEGMENTOS ---
   for (let i = 0; i < this.enemigoBody.length; i++) {
     const pos = this.bodyPos[i + 1];
-    if (pos) {
+    if (pos && this.snakeStop === false) {
       this.enemigoBody[i].x = pos.x;
       this.enemigoBody[i].y = pos.y;
     }
@@ -454,7 +744,17 @@ if (this.bodyDistance >= SEGMENT_SPACING || this.bodyPos.length === 0) {
 
   // --- ENEMIGO PATHFINDING OPTIMIZADO ---
   if (this.start === true) {
-  
+
+    if(this.snakeStop === false && this.pendingStop === false) {
+      this.oldEnemySpeed = this.speedEnemigo
+    } else if (this.snakeStop === true) {
+      this.speedEnemigo = 0
+      this.pendingStop = true
+    };  
+    if (this.snakeStop === false && this.pendingStop === true ) {
+      this.speedEnemigo = this.oldEnemySpeed;
+      this.pendingStop = false
+    };
 
   const cellSizeX = 16;
   const cellSizeY = 9;
@@ -488,9 +788,9 @@ if (this.bodyDistance >= SEGMENT_SPACING || this.bodyPos.length === 0) {
     };
   
     const minX = 17;
-    const maxX = 304 - cellSizeX; // 288 si cellSizeX=16
+    const maxX = 304 - cellSizeX;
     const minY = 19;
-    const maxY = 160 - cellSizeY; // 151 si cellSizeY=9
+    const maxY = 160 - cellSizeY;
 
     const clampToGrid = (val, min, max, size) => {
       let clamped = Math.max(min, Math.min(max, val));
@@ -591,19 +891,23 @@ if (this.bodyDistance >= SEGMENT_SPACING || this.bodyPos.length === 0) {
     this.enemigo.setVelocity(0, 0);
   }
 
+  if (this.snakeStop === false){
   if (this.enemyDir === 'up') this.enemigo.setAngle(-90);
   else if (this.enemyDir === 'down') this.enemigo.setAngle(90);
   else if (this.enemyDir === 'left') this.enemigo.setAngle(180);
   else if (this.enemyDir === 'right') this.enemigo.setAngle(0);
+  }
 }}
 
 
 
   // --- GAME OVER ---
   if (this.muerte === true) {
+    this.deathsound.play();
     this.scene.start("muerte", { score: this.score, tiempo: this.tiempo});
     this.scene.stop("arena");
     this.coin = null;
+    this.shield = null;
   }
 }
 

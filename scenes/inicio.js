@@ -13,7 +13,8 @@ export default class inicio extends Phaser.Scene {
 
   preload() {
     this.load.image("fondo", "public/assets/fondo.png");
-    this.load.image("logo", "public/assets/logo.png");       
+    this.load.image("logo", "public/assets/logo.png");
+    this.load.audio("startsound" , "public/assets/audio/play.mp3");      
     this.load.bitmapFont("retroR", "public/assets/fonts/Retro Gaming/RetroGamingRED.png", "public/assets/fonts/Retro Gaming/RetroGamingRED.xml");
     this.load.bitmapFont("retro", "public/assets/fonts/Retro Gaming/RetroGaming.png", "public/assets/fonts/Retro Gaming/RetroGaming.xml")
 
@@ -31,11 +32,14 @@ export default class inicio extends Phaser.Scene {
     this.add.bitmapText(315, 175, "retro", `${Ver}`)
     .setOrigin(1, 1);
 
+    this.playsound = this.sound.add("startsound", {volume: 1})
+
     this.enter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER); 
   }
 
   update() {
     if(Phaser.Input.Keyboard.JustDown(this.enter)){
+      this.playsound.play()
         this.scene.start("arena");
         this.scene.stop("inicio");
     }
