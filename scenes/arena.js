@@ -449,7 +449,7 @@ for (let i = 1; i <= 2; i++) {
           const y = Phaser.Math.Between(32, 154);
           this.chance = Phaser.Math.Between(0, 100);
           
-          if(this.chance > 99){
+          if(this.chance > 15){
             this.coin = this.physics.add.sprite(x, y, "monedita");
             this.coin.setCollideWorldBounds(true);
             this.coin.anims.play("giroM", true);
@@ -505,7 +505,7 @@ for (let i = 1; i <= 2; i++) {
                         this.animStop = true
                       }
                     }
-                  })
+                  })  
                 }
                 
               });
@@ -513,7 +513,7 @@ for (let i = 1; i <= 2; i++) {
             }
           });
           
-          }else if (this.chance <= 99) {
+          }else if (this.chance <= 15) {
             this.shield = this.physics.add.sprite(x, y, "escudito");
             this.shield.setCollideWorldBounds(true);
             this.shield.anims.play("escudoB", true);
