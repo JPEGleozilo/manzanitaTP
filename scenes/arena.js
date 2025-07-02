@@ -103,7 +103,7 @@ export default class arena extends Phaser.Scene {
     this.load.audio("coin", "public/assets/audio/coin.mp3");
     this.load.audio("death", "public/assets/audio/Hit.mp3");
     this.load.audio("powerup", "public/assets/audio/Powerup.mp3");
-    this.load.audio("shieldBreak" , "public/assets/audio/play.mp3");
+    this.load.audio("shieldBreak" , "public/assets/audio/shieldoff.mp3");
     this.load.bitmapFont("retro", "public/assets/fonts/Retro Gaming/RetroGaming.png", "public/assets/fonts/Retro Gaming/RetroGaming.xml");
     this.load.bitmapFont("uphe" , "public/assets/fonts/Upheaval/Upheaval.png", "public/assets/fonts/Upheaval/Upheaval.xml");
     this.load.spritesheet("manzanitaF", "public/assets/spritesheets/manzanita feliz.png", { frameWidth: 16, frameHeight: 16 });
@@ -119,6 +119,8 @@ export default class arena extends Phaser.Scene {
 
     this.player = this.physics.add.sprite(180, 90, "manzanitaF");
     this.player.setCollideWorldBounds(true);
+
+    this.speed = 160;
 
     this.anims.create({
         key: 'OesteF',
@@ -295,7 +297,17 @@ for (let i = 1; i <= 2; i++) {
       this.shieldPending = true
       this.snakeStop = true
       this.pendingStop = true
-      this.shieldOff.play()
+      if (this.shieldOffCoolDown === false) {
+          this.shieldOff.play()
+          this.shieldOffCoolDown = true
+          
+          this.time.addEvent({
+            delay: 1500,
+            callback: () => {
+              this.shieldOffCoolDown = false
+            } 
+          });
+        }
       this.enemigo.setVelocity(0, 0);
       this.animStop = false
       this.time.addEvent({
@@ -335,6 +347,7 @@ for (let i = 1; i <= 2; i++) {
     this.deathsound = this.sound.add("death", {volume: 3.5});
     this.powerupsound = this.sound.add("powerup", {volume: 1});
     this.shieldOff = this.sound.add("shieldBreak", {volume: 1});
+    this.shieldOffCoolDown = false
 
     this.bordes = this.physics.add.staticGroup();
     this.bordes.create(16, 16, "borde").setOrigin(0, 0).setDisplaySize(288, 2).refreshBody();
@@ -355,7 +368,17 @@ for (let i = 1; i <= 2; i++) {
         this.shieldPending = true
         this.snakeStop = true
         this.pendingStop = true
-        this.shieldOff.play()
+        if (this.shieldOffCoolDown === false) {
+          this.shieldOff.play()
+          this.shieldOffCoolDown = true
+          
+          this.time.addEvent({
+            delay: 1500,
+            callback: () => {
+              this.shieldOffCoolDown = false
+            } 
+          });
+        }
         this.animStop = false
 
         this.enemigo.setVelocity(0, 0);
@@ -477,7 +500,17 @@ for (let i = 1; i <= 2; i++) {
                   this.shieldPending = true
                   this.snakeStop = true
                   this.pendingStop = true
-                  this.shieldOff.play()
+                  if (this.shieldOffCoolDown === false) {
+          this.shieldOff.play()
+          this.shieldOffCoolDown = true
+          
+          this.time.addEvent({
+            delay: 1500,
+            callback: () => {
+              this.shieldOffCoolDown = false
+            } 
+          });
+        }
                   this.enemigo.setVelocity(0, 0);
                   this.animStop = false
                   
@@ -526,6 +559,7 @@ for (let i = 1; i <= 2; i++) {
               this.shieldPending = false
               this.powerupsound.play();
               this.shield.destroy();
+              this.shieldOffCoolDown = false;
               this.shield = null;
               this.score += 100;
               this.scoretext.setText(`score: ${this.score}`);
@@ -544,7 +578,17 @@ for (let i = 1; i <= 2; i++) {
                   this.shieldPending = true
                   this.snakeStop = true
                   this.pendingStop = true
-                  this.shieldOff.play()
+                  if (this.shieldOffCoolDown === false) {
+          this.shieldOff.play()
+          this.shieldOffCoolDown = true
+          
+          this.time.addEvent({
+            delay: 1500,
+            callback: () => {
+              this.shieldOffCoolDown = false
+            } 
+          });
+        }
                   this.enemigo.setVelocity(0, 0);
                   this.animStop = false
                   
@@ -597,7 +641,7 @@ for (let i = 1; i <= 2; i++) {
 
  update(time) {
 
-  this.player.setImmovable(false);
+  console.log(this.player.body.velocity)
   
   if (this.shieldSkin === false) {
     this.oeste = this.player.anims.play("OesteF", true);
@@ -624,7 +668,7 @@ for (let i = 1; i <= 2; i++) {
 
   // --- MOVIMIENTO DEL JUGADOR ---
 
-  const speed = 160;
+
   let vx = 0;
   let vy = 0;
 
@@ -672,11 +716,11 @@ if (animKey) {
   this.player.anims.play(animKey, true);
 }
 
-  this.player.setVelocityX(vx * speed);
-  this.player.setVelocityY(vy * speed);
+  this.player.setVelocityX(vx * this.speed);
+  this.player.setVelocityY(vy * this.speed);
 
   this.trailTimer = (this.trailTimer || 0) + 1;
-  if (this.trailTimer % Math.round(speed / 40) === 0) { // Cambia 4 por la frecuencia deseada
+  if (this.trailTimer % Math.round(this.speed / 40) === 0) { // Cambia 4 por la frecuencia deseada
     const trail = this.add.image(this.player.x, this.player.y, "manzana")
       .setAlpha(0.5)
       .setDepth(-2); // Detrás del jugador
@@ -695,7 +739,7 @@ if (animKey) {
   });
 
 
-  const SEGMENT_SPACING = Math.round(this.oldEnemySpeed / 12);
+  const SEGMENT_SPACING = Math.round(1200 / this.oldEnemySpeed);
 
   const dx = this.enemigo.x - this.lastHeadPos.x;
   const dy = this.enemigo.y - this.lastHeadPos.y;

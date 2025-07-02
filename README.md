@@ -11,11 +11,18 @@
 
 ## PATCH NOTES ##
 
+   ## Beta 5.1
+      -Nuevo sonidito
+         -Cuando Escudito se rompe, ahora produce otro Sonidito más agradable al oído.
+      
+      -Soniditos fix
+         -Ya no se puede spammear el Sonidito de Escudito al entrar en contacto con Viborita.
+
 ## Beta 5.0
    -Estan llegando los podercitos!
       -Se agregó un escudito que te salva de una mordidita y congela temporalmente a la viborita.
    
-   -La manzanita ya no es sorda
+   -Manzanita ya no es sorda
       -Nuevos efectos de sonido. 
 
    ## Beta 4.2

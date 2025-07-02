@@ -2,7 +2,7 @@ import inicio from "./scenes/inicio.js";
 import arena from "./scenes/arena.js";
 import muerte from "./scenes/muerte.js";
 
-export const Ver = "Beta v5.0";
+export const Ver = "Beta v5.1";
 
 // Create a new Phaser config object
 const config = {
